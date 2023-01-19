@@ -404,6 +404,25 @@ block: # Experiments
 
   doAssert counter2 == 1, "one-item collection when set"
 
+proc testAssignResult() =
+  var assigned: bool
+  template assignResult(v: Result[int, string]) =
+    assigned = true
+    result = v
+
+  proc failed(): Result[int, string] =
+    err("fail")
+
+  proc calling(): Result[int, string] =
+    let _ = ? failed()
+    doAssert false
+
+  let r = calling()
+  doAssert assigned
+  doAssert r == Result[int, string].err("fail")
+
+testAssignResult()
+
 block: # Constants
   # TODO https://github.com/nim-lang/Nim/issues/20699
   type
